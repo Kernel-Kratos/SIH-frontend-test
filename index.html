@@ -52,13 +52,23 @@
                         <i data-lucide="plus-circle" class="mr-2 h-5 w-5"></i>
                         Report Issue
                     </button>
-                    <button @click="activeSection = (activeSection === 'menu' ? 'home' : 'menu')" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
-                        <i data-lucide="menu" class="h-6 w-6" x-show="activeSection !== 'menu'"></i>
-                        <i data-lucide="x" class="h-6 w-6" x-show="activeSection === 'menu'" x-cloak></i>
-                    </button>
+                    <div class="flex items-center space-x-2">
+    <!-- Translator Button (only on mobile) -->
+    <button class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+        <i data-lucide="languages" class="h-6 w-6"></i>
+    </button>
+
+    <!-- Hamburger Button -->
+    <button @click="activeSection = (activeSection === 'menu' ? 'home' : 'menu')" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+        <i data-lucide="menu" class="h-6 w-6" x-show="activeSection !== 'menu'"></i>
+        <i data-lucide="x" class="h-6 w-6" x-show="activeSection === 'menu'" x-cloak></i>
+    </button>
+</div>
+
                 </div>
             </div>
         </nav>
+        
         <!-- Mobile Menu -->
         <div x-show="activeSection === 'menu'" class="lg:hidden bg-white py-4 border-t" x-transition x-cloak>
             <a href="#" @click.prevent="activeSection='home'" class="block text-center py-3 px-4 text-lg text-gray-600 hover:bg-gray-100">Home</a>
