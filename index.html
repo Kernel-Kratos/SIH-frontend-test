@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAN-AWAZ - The People's Voice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; scroll-behavior: smooth; }
+        .hero-bg { background-color: #F0F8FF; background-image: linear-gradient(135deg, #f0f8ff 0%, #ffffff 100%); }
+        .cta-button { transition: all 0.3s ease; box-shadow: 0 4px 15px 0 rgba(255, 152, 0, 0.4); }
+        .cta-button:hover { transform: translateY(-3px); box-shadow: 0 6px 20px 0 rgba(255, 152, 0, 0.5); }
+        .nav-link { position: relative; transition: color 0.3s ease; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 50%; transform: translateX(-50%); background-color: #FF9800; transition: width 0.3s ease; }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        .status-reported { background-color: #FEF3C7; color: #D97706; }
+        .status-progress { background-color: #DBEAFE; color: #2563EB; }
+        .status-resolved { background-color: #D1FAE5; color: #059669; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800" x-data="{ activeSection: 'home', isModalOpen: false }" @keydown.escape.window="isModalOpen = false">
+<!-- Chosen Palette: Jan-Awaaz Trust (Primary Blue, Accent Orange, Success Green, Neutral Grays) -->
+<!-- Application Structure Plan: A single-page application (SPA) model was chosen for its speed and simplicity, ideal for users with slow connections. Navigation is handled by switching visible sections via Javascript, preventing page reloads. The user flow is task-oriented: the primary task, 'Report an Issue', is presented first via a prominent CTA on the homepage, which opens a modal form to keep the user in context. Secondary tasks like viewing issues and analytics are accessible via clear navigation, allowing users to explore without being overwhelmed. This structure prioritizes the core action while making other features easily discoverable. -->
+<!-- Visualization & Content Choices: Report Info -> Goal -> Viz/Presentation -> Interaction -> Justification. 1. Key Metrics (Total/Resolved/Pending) -> Inform -> Large Number Stat Cards -> Static Display -> Quickly conveys platform impact and activity without clutter. 2. Issue Categories -> Compare -> Simulated Horizontal Bar Chart (Styled Divs) -> Static Display -> Shows distribution of issues simply and visually without the overhead of a full charting library, adhering to the "avoid complex charts" rule. 3. List of Issues -> Organize/Inform -> Card-based Grid with Filters -> Clickable Filter Buttons (prototype-only) -> A familiar, scannable pattern for users to browse content. Color-coded status tags provide at-a-glance information. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Header -->
+    <header class="bg-white/90 backdrop-blur-lg shadow-sm sticky top-0 z-40">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="#" @click.prevent="activeSection='home'" class="flex items-center space-x-2">
+                    <div class="bg-blue-600 p-2 rounded-full flex items-center justify-center">
+                        <i data-lucide="megaphone" class="text-white h-6 w-6"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-900">JAN-AWAZ</span>
+                </a>
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="#" @click.prevent="activeSection='home'" class="nav-link text-gray-600 hover:text-blue-600 font-medium" :class="{'active text-blue-600': activeSection === 'home'}">Home</a>
+                    <a href="#" @click.prevent="activeSection='view-issues'" class="nav-link text-gray-600 hover:text-blue-600 font-medium" :class="{'active text-blue-600': activeSection === 'view-issues'}">View Issues</a>
+                    <a href="#" @click.prevent="activeSection='analytics'" class="nav-link text-gray-600 hover:text-blue-600 font-medium" :class="{'active text-blue-600': activeSection === 'analytics'}">Analytics</a>
+                    <a href="#" @click.prevent="activeSection='about'" class="nav-link text-gray-600 hover:text-blue-600 font-medium" :class="{'active text-blue-600': activeSection === 'about'}">About Us</a>
+                    <a href="#" @click.prevent="activeSection='#'" class="nav-link text-gray-600 hover:text-blue-600 font-medium" :class="translate"><i data-lucide="languages"></i>  </a>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button @click="isModalOpen = true" class="hidden sm:flex items-center justify-center bg-orange-500 text-white font-bold py-2 px-5 rounded-full cta-button">
+                        <i data-lucide="plus-circle" class="mr-2 h-5 w-5"></i>
+                        Report Issue
+                    </button>
+                    <button @click="activeSection = (activeSection === 'menu' ? 'home' : 'menu')" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i data-lucide="menu" class="h-6 w-6" x-show="activeSection !== 'menu'"></i>
+                        <i data-lucide="x" class="h-6 w-6" x-show="activeSection === 'menu'" x-cloak></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <!-- Mobile Menu -->
+        <div x-show="activeSection === 'menu'" class="lg:hidden bg-white py-4 border-t" x-transition x-cloak>
+            <a href="#" @click.prevent="activeSection='home'" class="block text-center py-3 px-4 text-lg text-gray-600 hover:bg-gray-100">Home</a>
+            <a href="#" @click.prevent="activeSection='view-issues'" class="block text-center py-3 px-4 text-lg text-gray-600 hover:bg-gray-100">View Issues</a>
+            <a href="#" @click.prevent="activeSection='analytics'" class="block text-center py-3 px-4 text-lg text-gray-600 hover:bg-gray-100">Analytics</a>
+            <a href="#" @click.prevent="activeSection='about'" class="block text-center py-3 px-4 text-lg text-gray-600 hover:bg-gray-100">About Us</a>
+            <a href="#" ><i data-lucide="languages"></i></a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <!-- Home Section -->
+        <section x-show="activeSection === 'home'" x-transition.opacity>
+            <div class="hero-bg rounded-2xl p-8 md:p-16 text-center flex flex-col items-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">Be the change.</h1>
+                <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-2xl">Report civic issues in your community and help build a better India, together.</p>
+                <button @click="isModalOpen = true" class="mt-8 text-lg md:text-xl inline-flex items-center justify-center bg-orange-500 text-white font-bold py-4 px-10 rounded-full cta-button">
+                    <i data-lucide="flag" class="mr-3 h-6 w-6"></i>
+                    REPORT A NEW ISSUE
+                </button>
+            </div>
+
+            <div class="my-16 md:my-24">
+                <h2 class="text-3xl font-bold text-center text-gray-900">How It Works</h2>
+                <p class="text-center text-gray-500 mt-2">A simple 3-step process to make your voice heard.</p>
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+                    <div class="text-center p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+                        <div class="mx-auto bg-blue-100 text-blue-600 w-20 h-20 rounded-full flex items-center justify-center"><i data-lucide="camera" class="h-10 w-10"></i></div>
+                        <h3 class="mt-6 text-xl font-semibold text-gray-800">1. Snap & Describe</h3>
+                        <p class="mt-2 text-gray-500">Take a photo or video of the issue and write a short description.</p>
+                    </div>
+                    <div class="text-center p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+                        <div class="mx-auto bg-orange-100 text-orange-500 w-20 h-20 rounded-full flex items-center justify-center"><i data-lucide="send" class="h-10 w-10"></i></div>
+                        <h3 class="mt-6 text-xl font-semibold text-gray-800">2. Submit Report</h3>
+                        <p class="mt-2 text-gray-500">Your report is sent to the relevant authorities and community groups.</p>
+                    </div>
+                    <div class="text-center p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+                        <div class="mx-auto bg-green-100 text-green-600 w-20 h-20 rounded-full flex items-center justify-center"><i data-lucide="trending-up" class="h-10 w-10"></i></div>
+                        <h3 class="mt-6 text-xl font-semibold text-gray-800">3. Track Progress</h3>
+                        <p class="mt-2 text-gray-500">Get updates and see the issue get resolved in real-time.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-3xl font-bold text-center text-gray-900">Recently Reported Issues</h2>
+                <p class="text-center text-gray-500 mt-2">See how your neighbors are making a difference.</p>
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 border border-gray-100">
+                        <img class="h-48 w-full object-cover" src="https://placehold.co/600x400/A9A9A9/FFFFFF?text=Pothole" alt="Pothole issue">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-800">Large Pothole</h3>
+                                <span class="status-reported text-xs font-bold px-3 py-1 rounded-full">Reported</span>
+                            </div>
+                            <p class="mt-2 text-gray-600 flex items-center"><i data-lucide="map-pin" class="h-4 w-4 mr-2 text-gray-400"></i>Koramangala, Bengaluru</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 border border-gray-100">
+                        <img class="h-48 w-full object-cover" src="https://placehold.co/600x400/A9A9A9/FFFFFF?text=Garbage" alt="Garbage issue">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-800">Garbage Overflow</h3>
+                                <span class="status-progress text-xs font-bold px-3 py-1 rounded-full">In Progress</span>
+                            </div>
+                            <p class="mt-2 text-gray-600 flex items-center"><i data-lucide="map-pin" class="h-4 w-4 mr-2 text-gray-400"></i>Andheri West, Mumbai</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 border border-gray-100">
+                        <img class="h-48 w-full object-cover" src="https://placehold.co/600x400/A9A9A9/FFFFFF?text=Streetlight" alt="Streetlight fixed">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-800">Streetlight Fixed</h3>
+                                <span class="status-resolved text-xs font-bold px-3 py-1 rounded-full">Resolved</span>
+                            </div>
+                            <p class="mt-2 text-gray-600 flex items-center"><i data-lucide="map-pin" class="h-4 w-4 mr-2 text-gray-400"></i>Connaught Place, Delhi</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <button @click="activeSection='view-issues'" class="bg-blue-600 text-white font-semibold py-3 px-8 rounded-full hover:bg-blue-700 transition-colors">View All Issues</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- View Issues Section -->
+        <section x-show="activeSection === 'view-issues'" x-transition.opacity x-cloak>
+            <h2 class="text-3xl font-bold text-gray-900">Community Reported Issues</h2>
+            <p class="text-gray-500 mt-1">Explore issues reported across the country.</p>
+            <div class="mt-8 bg-gray-200 rounded-xl h-96 flex items-center justify-center text-gray-500 text-lg font-medium">[ Image of Interactive Map of India with Pins ]</div>
+            <div class="my-8 flex flex-wrap gap-2">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold">All</button>
+                <button class="px-4 py-2 bg-white text-gray-700 rounded-full text-sm font-semibold border hover:bg-gray-100">Potholes</button>
+                <button class="px-4 py-2 bg-white text-gray-700 rounded-full text-sm font-semibold border hover:bg-gray-100">Garbage</button>
+                <button class="px-4 py-2 bg-white text-gray-700 rounded-full text-sm font-semibold border hover:bg-gray-100">Water Leakage</button>
+                <button class="px-4 py-2 bg-white text-gray-700 rounded-full text-sm font-semibold border hover:bg-gray-100">Streetlights</button>
+                <button class="px-4 py-2 bg-white text-gray-700 rounded-full text-sm font-semibold border hover:bg-gray-100">Resolved</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border"><img class="h-48 w-full object-cover" src="https://placehold.co/600x400/A9A9A9/FFFFFF?text=Pothole+2" alt="Pothole"><div class="p-6"><div class="flex items-center justify-between"><h3 class="text-lg font-semibold text-gray-800">Pothole on Main Road</h3><span class="status-reported text-xs font-bold px-3 py-1 rounded-full">Reported</span></div><p class="mt-2 text-gray-600 flex items-center"><i data-lucide="map-pin" class="h-4 w-4 mr-2 text-gray-400"></i>Jubilee Hills, Hyderabad</p></div></div>
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border"><img class="h-48 w-full object-cover" src="https://placehold.co/600x400/A9A9A9/FFFFFF?text=Broken+Pipe" alt="Broken Pipe"><div class="p-6"><div class="flex items-center justify-between"><h3 class="text-lg font-semibold text-gray-800">Water Pipe Broken</h3><span class="status-progress text-xs font-bold px-3 py-1 rounded-full">In Progress</span></div><p class="mt-2 text-gray-600 flex items-center"><i data-lucide="map-pin" class="h-4 w-4 mr-2 text-gray-400"></i>Salt Lake, Kolkata</p></div></div>
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border"><img class="h-48 w-full object-cover" src="https://placehold.co/600x400/A9A9A9/FFFFFF?text=Light+Out" alt="Streetlight Out"><div class="p-6"><div class="flex items-center justify-between"><h3 class="text-lg font-semibold text-gray-800">Streetlight not working</h3><span class="status-reported text-xs font-bold px-3 py-1 rounded-full">Reported</span></div><p class="mt-2 text-gray-600 flex items-center"><i data-lucide="map-pin" class="h-4 w-4 mr-2 text-gray-400"></i>Anna Nagar, Chennai</p></div></div>
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border"><img class="h-48 w-full object-cover" src="https://placehold.co/600x400/A9A9A9/FFFFFF?text=Resolved+Garbage" alt="Resolved Garbage"><div class="p-6"><div class="flex items-center justify-between"><h3 class="text-lg font-semibold text-gray-800">Garbage Cleared</h3><span class="status-resolved text-xs font-bold px-3 py-1 rounded-full">Resolved</span></div><p class="mt-2 text-gray-600 flex items-center"><i data-lucide="map-pin" class="h-4 w-4 mr-2 text-gray-400"></i>Viman Nagar, Pune</p></div></div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section x-show="activeSection === 'analytics'" x-transition.opacity x-cloak>
+            <h2 class="text-3xl font-bold text-gray-900">Platform Analytics</h2>
+            <p class="text-gray-500 mt-1">A snapshot of our collective impact.</p>
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center border"><i data-lucide="list-checks" class="h-12 w-12 text-blue-500 mx-auto"></i><p class="text-5xl font-bold text-gray-800 mt-4">12,456</p><p class="text-gray-500 mt-2">Total Issues Reported</p></div>
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center border"><i data-lucide="shield-check" class="h-12 w-12 text-green-500 mx-auto"></i><p class="text-5xl font-bold text-gray-800 mt-4">9,872</p><p class="text-gray-500 mt-2">Issues Resolved</p></div>
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center border"><i data-lucide="loader" class="h-12 w-12 text-orange-500 mx-auto"></i><p class="text-5xl font-bold text-gray-800 mt-4">2,584</p><p class="text-gray-500 mt-2">Pending Action</p></div>
+            </div>
+            <div class="mt-12 bg-white p-6 md:p-8 rounded-xl shadow-lg border">
+                <h3 class="text-xl font-bold text-gray-800">Top 5 Issue Categories</h3>
+                <div class="mt-6 space-y-4"><div class="space-y-1"><p class="text-sm font-medium text-gray-600">Potholes (75%)</p><div class="w-full bg-gray-200 rounded-full h-4"><div class="bg-blue-500 h-4 rounded-full" style="width: 75%"></div></div></div><div class="space-y-1"><p class="text-sm font-medium text-gray-600">Garbage (60%)</p><div class="w-full bg-gray-200 rounded-full h-4"><div class="bg-green-500 h-4 rounded-full" style="width: 60%"></div></div></div><div class="space-y-1"><p class="text-sm font-medium text-gray-600">Water Leakage (45%)</p><div class="w-full bg-gray-200 rounded-full h-4"><div class="bg-sky-500 h-4 rounded-full" style="width: 45%"></div></div></div><div class="space-y-1"><p class="text-sm font-medium text-gray-600">Streetlight Outage (30%)</p><div class="w-full bg-gray-200 rounded-full h-4"><div class="bg-yellow-500 h-4 rounded-full" style="width: 30%"></div></div></div><div class="space-y-1"><p class="text-sm font-medium text-gray-600">Others (15%)</p><div class="w-full bg-gray-200 rounded-full h-4"><div class="bg-gray-400 h-4 rounded-full" style="width: 15%"></div></div></div></div>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section x-show="activeSection === 'about'" x-transition.opacity x-cloak>
+            <div class="bg-white p-8 md:p-12 rounded-xl shadow-lg border">
+                <h2 class="text-3xl font-bold text-gray-900 text-center">About JAN-AWAZ</h2>
+                <div class="w-24 h-1 bg-blue-600 mx-auto mt-4"></div>
+                <div class="mt-8 text-gray-600 leading-relaxed max-w-3xl mx-auto space-y-4 text-justify">
+                    <p><strong>JAN-AWAZ</strong>, meaning "The People's Voice" in Hindi, is a non-profit initiative born from a simple idea: that every citizen has the right to a clean, safe, and functional community. We believe that technology can be a powerful bridge between citizens and governance.</p>
+                    <p>Our mission is to empower individuals to become active participants in improving their neighborhoods. By providing a simple, accessible platform to report local civic issues—from potholes and broken streetlights to water leaks and garbage collection problems—we aim to bring these problems to the attention of the authorities who can solve them.</p>
+                    <p>Every report you submit is a step towards a more accountable and responsive system. Together, we can build stronger communities, one report at a time. Thank you for being a part of this movement.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center"><p>&copy; 2025 JAN-AWAZ. A platform for the people, by the people.</p></div>
+    </footer>
+
+    <!-- Report Issue Modal -->
+    <div x-show="isModalOpen" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4" x-cloak>
+      <!-- <div @click.away="isModalOpen = false" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 md:p-8 transform transition-all" x-show="isModalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90">-->
+        <div @click.away="isModalOpen = false" 
+     class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 md:p-8 transform transition-all 
+            max-h-[90vh] overflow-y-auto" 
+     x-show="isModalOpen"
+     x-transition:enter="ease-out duration-300" 
+     x-transition:enter-start="opacity-0 scale-90" 
+     x-transition:enter-end="opacity-100 scale-100" 
+     x-transition:leave="ease-in duration-200" 
+     x-transition:leave-start="opacity-100 scale-100" 
+     x-transition:leave-end="opacity-0 scale-90">
+
+            <div class="flex items-center justify-between"><h2 class="text-2xl font-bold text-gray-800">Report a New Issue</h2><button @click="isModalOpen = false" class="text-gray-400 hover:text-gray-600 p-2 -mr-2"><i data-lucide="x" class="h-6 w-6"></i></button></div>
+            <form class="mt-6 space-y-6">
+                <div>
+                    <label class="font-semibold text-gray-700">Add Media</label><p class="text-sm text-gray-500">A picture is worth a thousand words.</p>
+                    <div class="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <button type="button" class="w-full flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg text-gray-500 hover:bg-gray-50 hover:border-blue-500 transition-colors"><i data-lucide="camera" class="h-8 w-8"></i><span class="mt-2 text-sm font-medium">Upload Photo</span></button>
+                        <button type="button" class="w-full flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg text-gray-500 hover:bg-gray-50 hover:border-blue-500 transition-colors"><i data-lucide="video" class="h-8 w-8"></i><span class="mt-2 text-sm font-medium">Upload Video</span></button>
+                        <button type="button" class="w-full flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg text-gray-500 hover:bg-gray-50 hover:border-blue-500 transition-colors"><i data-lucide="mic" class="h-8 w-8"></i><span class="mt-2 text-sm font-medium">Record Audio</span></button>
+                    </div>
+                </div>
+                <div>
+                    <label for="issue-category" class="font-semibold text-gray-700">Category of Issue</label>
+                    <select id="issue-category" class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><option>Select a category...</option><option>Pothole</option><option>Garbage Dump</option><option>Water Leakage / Clogged Drain</option><option>Streetlight Outage</option><option>Broken Pavement</option><option>Other</option></select>
+                </div>
+                <div>
+                    <label for="issue-location" class="font-semibold text-gray-700">Location / Landmark</label>
+                    <input type="text" id="issue-location" placeholder="e.g., Near City Bakery, MG Road" class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="issue-description" class="font-semibold text-gray-700">Describe the issue</label>
+                    <textarea id="issue-description" rows="4" placeholder="Please provide as much detail as possible..." class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                <div class="pt-4">
+                    <button type="submit" @click.prevent="isModalOpen = false" class="w-full text-lg bg-orange-500 text-white font-bold py-3 px-5 rounded-full cta-button">SUBMIT REPORT</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>
